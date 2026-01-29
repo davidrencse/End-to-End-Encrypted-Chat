@@ -1,38 +1,43 @@
 import asyncio
 import json
 import os
-from typing import Dict, Optional, Tuple
+from typing import Dict
 
-import websockets
+from aiohttp import web
 
 
 HOST = "0.0.0.0"
 PORT = int(os.environ.get("PORT", "8765"))
 
 
-clients: Dict[str, websockets.WebSocketServerProtocol] = {}
+clients: Dict[str, web.WebSocketResponse] = {}
 
 
-async def send_json(ws, data):
-    await ws.send(json.dumps(data))
+async def send_json(ws: web.WebSocketResponse, data: dict) -> None:
+    await ws.send_str(json.dumps(data))
 
 
-def health_check(path, request_headers) -> Optional[Tuple[int, list, bytes]]:
-    # Render sends regular HTTP health checks (often HEAD). Respond to them.
-    if path in ("/", "/health"):
-        body = b"ok"
-        return 200, [("Content-Type", "text/plain")], body
-    # Any other non-WebSocket HTTP request should still get a simple response.
-    body = b"websocket only"
-    return 200, [("Content-Type", "text/plain")], body
+async def root(request: web.Request) -> web.StreamResponse:
+    ws = web.WebSocketResponse()
+    if ws.can_prepare(request).ok:
+        await ws.prepare(request)
+        await websocket_handler(ws)
+        return ws
+    return web.Response(text="ok")
 
 
-async def handler(ws):
+async def health(request: web.Request) -> web.Response:
+    return web.Response(text="ok")
+
+
+async def websocket_handler(ws: web.WebSocketResponse) -> None:
     username = None
     try:
-        async for raw in ws:
+        async for msg in ws:
+            if msg.type != web.WSMsgType.TEXT:
+                continue
             try:
-                data = json.loads(raw)
+                data = json.loads(msg.data)
             except json.JSONDecodeError:
                 await send_json(ws, {"type": "error", "message": "invalid json"})
                 continue
@@ -73,11 +78,12 @@ async def handler(ws):
             del clients[username]
 
 
-async def main():
-    async with websockets.serve(handler, HOST, PORT, process_request=health_check):
-        print(f"Server running on ws://{HOST}:{PORT}")
-        await asyncio.Future()
+def main() -> None:
+    app = web.Application()
+    app.router.add_get("/", root)
+    app.router.add_get("/health", health)
+    web.run_app(app, host=HOST, port=PORT)
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
