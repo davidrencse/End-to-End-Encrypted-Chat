@@ -1,6 +1,9 @@
 import asyncio
 import json
 import sys
+import time
+import urllib.request
+import urllib.error
 from typing import Dict, Optional
 
 import websockets
@@ -40,6 +43,7 @@ class WSClient(QThread):
         self._loop = None
         self._ws = None
         self._running = True
+        self._last_wake = 0.0
 
     async def _send(self, data: dict) -> None:
         if not self._ws:
@@ -73,8 +77,33 @@ class WSClient(QThread):
                         self.message.emit(data)
             except Exception as exc:
                 self.error.emit(str(exc))
+                await self._wake_server()
                 await asyncio.sleep(backoff)
                 backoff = min(backoff * 2, 30.0)
+
+    def _health_url(self) -> Optional[str]:
+        if self.url.startswith("wss://"):
+            return "https://" + self.url[len("wss://") :] + "/health"
+        if self.url.startswith("ws://"):
+            return "http://" + self.url[len("ws://") :] + "/health"
+        return None
+
+    async def _wake_server(self) -> None:
+        now = time.monotonic()
+        if now - self._last_wake < 10.0:
+            return
+        self._last_wake = now
+        url = self._health_url()
+        if not url:
+            return
+        await asyncio.to_thread(self._ping_health, url)
+
+    def _ping_health(self, url: str) -> None:
+        try:
+            with urllib.request.urlopen(url, timeout=5) as _:
+                pass
+        except (urllib.error.URLError, TimeoutError):
+            pass
 
 
 class LoginDialog(QDialog):
@@ -119,6 +148,7 @@ class ChatWindow(QMainWindow):
         self.passphrase = passphrase
         self.server_url = server_url
         self.pubkeys: Dict[str, PGPKey] = {}
+        self.ws_connected = False
 
         self.pubkey, self.privkey = self._load_or_create_keys()
 
@@ -205,9 +235,11 @@ class ChatWindow(QMainWindow):
         return decrypted.message
 
     def _on_connected(self) -> None:
+        self.ws_connected = True
         self._log("Connected to server.")
 
     def _on_error(self, msg: str) -> None:
+        self.ws_connected = False
         self._log(f"Connection error: {msg}")
 
     def _on_message(self, data: dict) -> None:
@@ -244,6 +276,9 @@ class ChatWindow(QMainWindow):
         target = self.to_input.text().strip()
         plaintext = self.msg_input.text().strip()
         if not target or not plaintext:
+            return
+        if not self.ws_connected:
+            self._log("Not connected yet. Waiting for server to wake...")
             return
         encrypted = self._encrypt_for_peer(target, plaintext)
         if not encrypted:
