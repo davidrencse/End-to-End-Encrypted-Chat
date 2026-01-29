@@ -39,6 +39,7 @@ class WSClient(QThread):
         self.username = username
         self._loop = None
         self._ws = None
+        self._running = True
 
     async def _send(self, data: dict) -> None:
         if not self._ws:
@@ -56,19 +57,24 @@ class WSClient(QThread):
         self._loop.run_until_complete(self._main())
 
     async def _main(self) -> None:
-        try:
-            async with websockets.connect(self.url) as ws:
-                self._ws = ws
-                await ws.send(json.dumps({"type": "register", "username": self.username}))
-                self.connected.emit()
-                async for raw in ws:
-                    try:
-                        data = json.loads(raw)
-                    except json.JSONDecodeError:
-                        continue
-                    self.message.emit(data)
-        except Exception as exc:
-            self.error.emit(str(exc))
+        backoff = 1.0
+        while self._running:
+            try:
+                async with websockets.connect(self.url) as ws:
+                    self._ws = ws
+                    await ws.send(json.dumps({"type": "register", "username": self.username}))
+                    self.connected.emit()
+                    backoff = 1.0
+                    async for raw in ws:
+                        try:
+                            data = json.loads(raw)
+                        except json.JSONDecodeError:
+                            continue
+                        self.message.emit(data)
+            except Exception as exc:
+                self.error.emit(str(exc))
+                await asyncio.sleep(backoff)
+                backoff = min(backoff * 2, 30.0)
 
 
 class LoginDialog(QDialog):
