@@ -1,54 +1,32 @@
 # E2EE Encrypted Chat (PGP)
 
-End-to-end encrypted 1:1 chat using OpenPGP encryption with PGPy.
+End-to-end encrypted 1:1 chat using OpenPGP (PGPy). The relay runs as a Render web service; clients are PyQt desktop apps.
 
-## Setup
+## Install
 ```sh
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-## Run (local server)
-Start the relay server:
-```sh
-python server.py
-```
-
-Start two clients (two terminals):
+## Run the client
 ```sh
 python client.py
 ```
 
-## Run (hosted server)
-If you deployed the server (example: Render), you only run the clients locally.
+In the login dialog:
+- Username: any name
+- Server: `wss://YOUR-SERVICE.onrender.com`
 
-Start two clients (two terminals):
-```sh
-python client.py
-```
+## Render (server) setup
+1) Push the repo to GitHub.
+2) Render: New -> Web Service -> connect the repo.
+3) Build Command: `pip install -r requirements.txt`
+4) Start Command: `python server.py`
+5) Health Check Path: `/health`
 
-In the login dialog, set Server to your hosted WebSocket URL, e.g.:
-```
-wss://YOUR-SERVICE.onrender.com
-```
-
-## Deploy to Render (free tier)
-1) Push this repo to GitHub.
-2) In Render: New -> Web Service -> connect your repo.
-3) Configure:
-   - Build Command: `pip install -r requirements.txt`
-   - Start Command: `python server.py`
-   - Instance Type: Free
-4) Set Health Check Path to `/health` in Settings -> Health & Alerts.
-5) Deploy.
-
-Notes:
-- Render free services sleep after ~15 minutes idle; first reconnect may take time.
-- Use `wss://` in clients for hosted connections.
-- Starting `python client.py` will wake the Render service; the client auto-retries until it connects.
-
-## Notes
-- This uses OpenPGP encryption via PGPy (public key per user).
-- Server relays messages only; it does not decrypt.
-- No key verification is implemented (for learning only).
+## Behavior
+- Render free services sleep after ~15 minutes idle.
+- Starting the client wakes the service; it auto-retries until it connects.
+- The server only relays encrypted messages.
+- No key verification is implemented (learning only).
