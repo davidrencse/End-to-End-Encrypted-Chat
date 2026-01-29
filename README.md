@@ -15,10 +15,13 @@ python client.py
 ```
 
 Use these settings in the login dialog:
-<img width="475" height="230" alt="image" src="https://github.com/user-attachments/assets/0f9119fa-5db3-4432-9920-0f133550f7cb" />
 
 - Username: any name
 - Server: `wss://end-to-end-encrypted-chat.onrender.com`
+
+Example: 
+
+<img width="475" height="230" alt="image" src="https://github.com/user-attachments/assets/0f9119fa-5db3-4432-9920-0f133550f7cb" />
 
 ## Behavior
 - Render free services sleep after ~15 minutes idle.
