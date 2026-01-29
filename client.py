@@ -133,6 +133,8 @@ class ChatWindow(QMainWindow):
         self.msg_input = QLineEdit()
         send_btn = QPushButton("Send")
         send_btn.clicked.connect(self._send_message)
+        keys_btn = QPushButton("Show Keys")
+        keys_btn.clicked.connect(self._show_keys)
 
         top = QFormLayout()
         top.addRow(self.user_label)
@@ -141,6 +143,7 @@ class ChatWindow(QMainWindow):
         bottom = QHBoxLayout()
         bottom.addWidget(self.msg_input)
         bottom.addWidget(send_btn)
+        bottom.addWidget(keys_btn)
 
         layout = QVBoxLayout()
         layout.addLayout(top)
@@ -244,6 +247,28 @@ class ChatWindow(QMainWindow):
         self.ws.send_json({"type": "msg", "to": target, "pgp": encrypted})
         self._log(f"me -> {target}: {plaintext}")
         self.msg_input.clear()
+
+    def _show_keys(self) -> None:
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Your Keys")
+        layout = QVBoxLayout()
+        text = QTextEdit()
+        text.setReadOnly(True)
+        text.setPlainText(
+            "Public key:\n"
+            f"{self.pubkey}\n\n"
+            "Private key:\n"
+            f"{self.privkey}\n\n"
+            "Session key:\n"
+            "OpenPGP uses a fresh per-message session key, which PGPy does not expose."
+        )
+        layout.addWidget(text)
+        close_btn = QPushButton("Close")
+        close_btn.clicked.connect(dialog.accept)
+        layout.addWidget(close_btn)
+        dialog.setLayout(layout)
+        dialog.resize(600, 500)
+        dialog.exec()
 
 
 def main() -> None:
