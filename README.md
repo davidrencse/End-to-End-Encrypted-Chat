@@ -1,6 +1,6 @@
 # E2EE Encrypted Chat (PGP)
 
-Learning-focused 1:1 chat using OpenPGP-style encryption with PGPy.
+End-to-end encrypted 1:1 chat using OpenPGP encryption with PGPy.
 
 ## Setup
 ```sh
