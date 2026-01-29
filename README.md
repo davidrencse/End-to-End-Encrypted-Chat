@@ -21,7 +21,10 @@ Use these settings in the login dialog:
 
 Example: 
 
-<img width="475" height="230" alt="image" src="https://github.com/user-attachments/assets/0f9119fa-5db3-4432-9920-0f133550f7cb" />
+<img width="842" height="252" alt="image" src="https://github.com/user-attachments/assets/4b62e086-2f60-47f2-858a-5cf535bdc2df" />
+
+### Result: 
+<img width="2030" height="752" alt="image" src="https://github.com/user-attachments/assets/dbc720c4-9ab4-46b5-9d9a-029f4fcc3ca9" />
 
 ## Behavior
 - Render free services sleep after ~15 minutes idle.
