@@ -18,10 +18,13 @@ async def send_json(ws, data):
 
 
 def health_check(path, request_headers) -> Optional[Tuple[int, list, bytes]]:
+    # Render sends regular HTTP health checks (often HEAD). Respond to them.
     if path in ("/", "/health"):
         body = b"ok"
         return 200, [("Content-Type", "text/plain")], body
-    return None
+    # Any other non-WebSocket HTTP request should still get a simple response.
+    body = b"websocket only"
+    return 200, [("Content-Type", "text/plain")], body
 
 
 async def handler(ws):
