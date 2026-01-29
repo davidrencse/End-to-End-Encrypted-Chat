@@ -18,13 +18,6 @@ Use these settings in the login dialog:
 - Username: any name
 - Server: `wss://end-to-end-encrypted-chat.onrender.com`
 
-## Hosting (Render)
-1) Push the repo to GitHub.
-2) Render: New -> Web Service -> connect the repo.
-3) Build Command: `pip install -r requirements.txt`
-4) Start Command: `python server.py`
-5) Health Check Path: `/health`
-
 ## Behavior
 - Render free services sleep after ~15 minutes idle.
 - Starting the client wakes the service; it auto-retries until it connects.
