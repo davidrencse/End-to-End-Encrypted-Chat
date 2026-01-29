@@ -15,7 +15,8 @@ python client.py
 ```
 
 Use these settings in the login dialog:
-<img width="684" height="344" alt="image" src="https://github.com/user-attachments/assets/3ed60415-7381-4e02-b6b7-fe0f0526cdd2" />
+<img width="475" height="230" alt="image" src="https://github.com/user-attachments/assets/0f9119fa-5db3-4432-9920-0f133550f7cb" />
+
 - Username: any name
 - Server: `wss://end-to-end-encrypted-chat.onrender.com`
 
