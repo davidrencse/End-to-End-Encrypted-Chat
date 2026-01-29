@@ -1,6 +1,6 @@
 # E2EE Encrypted Chat (PGP)
 
-End-to-end encrypted 1:1 chat using OpenPGP (PGPy). The relay runs as a Render web service; clients are PyQt desktop apps.
+End-to-end encrypted 1:1 chat using OpenPGP (PGPy). The relay runs on Render; clients are PyQt desktop apps.
 
 ## Install
 ```sh
@@ -14,11 +14,11 @@ pip install -r requirements.txt
 python client.py
 ```
 
-In the login dialog:
+Use these settings in the login dialog:
 - Username: any name
-- Server: `wss://YOUR-SERVICE.onrender.com`
+- Server: `wss://end-to-end-encrypted-chat.onrender.com`
 
-## Render (server) setup
+## Hosting (Render)
 1) Push the repo to GitHub.
 2) Render: New -> Web Service -> connect the repo.
 3) Build Command: `pip install -r requirements.txt`
