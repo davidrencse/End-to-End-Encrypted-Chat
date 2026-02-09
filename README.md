@@ -27,7 +27,7 @@ Use these settings in the login dialog:
 <img width="2030" height="752" alt="image" src="https://github.com/user-attachments/assets/dbc720c4-9ab4-46b5-9d9a-029f4fcc3ca9" />
 
 ## Behavior
-- Render free services sleep after ~15 minutes idle.
+- Render free services sleep after ~15 minutes idle. [so please wait for it to go back online]
 - Starting the client wakes the service; it auto-retries until it connects.
 - The server only relays encrypted messages.
 - No key verification is implemented (assumed).
